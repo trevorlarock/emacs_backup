@@ -1,0 +1,131 @@
+;; trev .emacs file
+
+;;(package-initialize)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(inhibit-startup-screen t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+
+;; Changes all yes/no questions to y/n type
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Scroll down with the cursor,move down the buffer one
+;; line at a time, instead of in larger amounts.
+(setq scroll-step 1)
+
+;; Show columns
+(setq column-number-mode t)
+
+;; Don't use tabs
+(setq-default indent-tabs-mode nil)
+
+;; Where .el files sit
+(add-to-list 'load-path "~/.emacs.d/lisp")
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			 ("marmalade" . "https://marmalade-repo.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")))
+
+;; some colours
+(set-face-foreground 'font-lock-string-face "red")
+(set-face-foreground 'font-lock-string-face "royal blue")
+(set-face-foreground 'font-lock-comment-face "dark green")
+(set-face-foreground 'font-lock-comment-delimiter-face "green")
+(set-face-foreground 'font-lock-function-name-face "bold black")
+(set-face-foreground 'font-lock-variable-name-face "bold black")
+(set-face-foreground 'font-lock-keyword-face "magenta")
+(set-face-foreground 'font-lock-type-face "magenta")
+(set-face-foreground 'font-lock-builtin-face "magenta")
+(set-face-foreground 'font-lock-constant-face "magenta")
+(set-face-foreground 'font-lock-warning-face  "red")
+(set-face-foreground 'font-lock-builtin-face  "magenta")
+(set-face-foreground 'font-lock-preprocessor-face  "magenta")
+
+
+;; activate in buffer by M-x blank-mode RET
+(require 'whitespace)
+(require 'blank-mode)
+
+;; tab width 4
+(setq-default tab-width 4)
+;;(setq-default tab-width 8)
+
+;;ctl-x 8 to set tab width to 8
+(defun trev-set-tab ()
+  (interactive)
+  (setq tab-width 8)
+  )
+(global-set-key "\C-x\8" 'trev-set-tab)
+
+;;cscope stuff
+(add-to-list 'load-path "/opt/local/share/emacs/site-lisp")
+(require 'xcscope)
+(setq cscope-do-not-update-database t)
+
+;; Get highlights on selected region and delete when hit a key
+(transient-mark-mode t)
+(delete-selection-mode t)
+
+(global-set-key [f1] 'help-command)
+(global-set-key [(f3)] 'kill-this-buffer)
+(global-set-key [f4] 'cscope-find-this-text-string)
+(global-set-key [f5] 'cscope-find-global-definition)
+(global-set-key [f6] 'cscope-pop-mark)
+(global-set-key [f7] 'cscope-find-functions-calling-this-function)
+(global-set-key [f8] 'cscope-find-this-symbol)
+(global-set-key [f9] 'shell)
+
+;; macro
+(global-set-key [f10]  'start-kbd-macro)
+(global-set-key [f11]  'end-kbd-macro)
+(global-set-key [f12]  'call-last-kbd-macro)
+
+;; fix indent+whitespace in buffer using "control-x \"
+(defun indent-buffer ()
+  "Indents an entire buffer using the default intenting scheme."
+  (interactive)
+  (save-excursion
+    (delete-trailing-whitespace)
+    (indent-region (point-min) (point-max) nil)
+    (untabify (point-min) (point-max))))
+
+(global-set-key "\C-x\\" 'indent-buffer)
+
+;; split from horiz to vertical split
+(defun toggle-window-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+	     (next-win-buffer (window-buffer (next-window)))
+	     (this-win-edges (window-edges (selected-window)))
+	     (next-win-edges (window-edges (next-window)))
+	     (this-win-2nd (not (and (<= (car this-win-edges)
+					 (car next-win-edges))
+				     (<= (cadr this-win-edges)
+					 (cadr next-win-edges)))))
+	     (splitter
+	      (if (= (car this-win-edges)
+		     (car (window-edges (next-window))))
+		  'split-window-horizontally
+		'split-window-vertically)))
+	(delete-other-windows)
+	(let ((first-win (selected-window)))
+	  (funcall splitter)
+	  (if this-win-2nd (other-window 1))
+	  (set-window-buffer (selected-window) this-win-buffer)
+	  (set-window-buffer (next-window) next-win-buffer)
+	  (select-window first-win)
+	  (if this-win-2nd (other-window 1))))))
+
+(global-set-key "\C-x\|" 'toggle-window-split)
+
