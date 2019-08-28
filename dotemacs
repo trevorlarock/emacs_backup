@@ -129,3 +129,72 @@
 
 (global-set-key "\C-x\|" 'toggle-window-split)
 
+;;; Came from /src/doc/dot.emacs
+
+;;; -*-emacs-lisp-*-
+;;;
+;;; Format code the Juniper way
+;;; $Id: dot.emacs 551487 2012-11-14 02:37:52Z dqiao $
+
+(require 'cc-mode)
+(setq orig-c-style-alist c-style-alist)
+(c-add-style "juniper"
+             '(
+               (c-basic-offset . 4)
+               (c-comment-only-line-offset . 0)
+               (c-offsets-alist
+                . (
+                   ;; first line of a new statement block
+                   (statement-block-intro . +)
+
+                   ;; First line of a K&R C argument declaration.
+                   (knr-argdecl-intro . +)
+
+                   ;; The brace that opens a substatement block.
+                   (substatement-open . 0)
+
+                   ;; Any non-special C label.
+                   (label . 2)
+
+                   ;; A `case' or `default' label.
+                   (case-label . 0)
+
+                   ;; The first line in a case block that starts with
+                   ;; a brace.
+                   (statement-case-open . +)
+
+                   ;; A continuation of a statement.
+                   (statement-cont . +)
+
+                   ;; The first line after a conditional or loop
+                   ;; construct.
+                   (substatement . +)
+
+                   ;; The first line in an argument list.
+                   (arglist-intro . c-lineup-arglist-intro-after-paren)
+
+                   ;; The solo close paren of an argument list.
+                   (arglist-close . c-lineup-arglist)
+
+                   ;; Brace that opens an in-class inline method.
+                   (inline-open . 0)
+
+                   ;; Open brace of an enum or static array list.
+                   (brace-list-open . 0)))
+
+               (c-special-indent-hook . c-gnu-impose-minimum)
+               (c-block-comment-prefix . "")))
+
+(defun juniper-c-default-style ()
+  "Set the default c-style for Juniper."
+  (interactive)
+  (define-key c-mode-map "\r" 'newline-and-indent)
+  (c-set-style "juniper"))
+
+(add-hook 'c-mode-common-hook 'juniper-c-default-style)
+(setq auto-mode-alist
+      (append '(("\\.odl$"    . c-mode)
+                ("\\.dd$"     . c-mode)
+                ("\\.errmsg$" . c-mode))
+              auto-mode-alist))
+
